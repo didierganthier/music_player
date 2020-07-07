@@ -13,10 +13,10 @@ class _UploadState extends State<Upload> {
   TextEditingController songName = TextEditingController();
   TextEditingController artistName = TextEditingController();
 
-  File image;
-  String imagePath;
+  File image, song;
+  String imagePath, songPath;
   StorageReference ref;
-  var image_down_url;
+  var image_down_url, song_down_url;
 
   void selectImage() async{
     image = await FilePicker.getFile();
@@ -35,6 +35,23 @@ class _UploadState extends State<Upload> {
     image_down_url = await (await uploadTask.onComplete).ref.getDownloadURL();
   }
 
+  void selectSong() async{
+    song = await FilePicker.getFile();
+
+    setState(() {
+      song = song;
+      songPath = basename(song.path);
+      uploadSongFile(song.readAsBytesSync(), songPath);
+    });
+  }
+
+  Future<String> uploadSongFile(List<int>song, String songPath) async {
+    ref = FirebaseStorage.instance.ref().child(songPath);
+    StorageUploadTask uploadTask = ref.putData(song);
+
+    song_down_url = await (await uploadTask.onComplete).ref.getDownloadURL();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -45,7 +62,7 @@ class _UploadState extends State<Upload> {
             child: Text('Select Image'),
           ),
           RaisedButton(
-            onPressed: (){},
+            onPressed: ()=> selectSong(),
             child: Text('Select Song'),
           ),
           Padding(
