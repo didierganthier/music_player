@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 
 class Upload extends StatefulWidget {
@@ -9,13 +12,24 @@ class _UploadState extends State<Upload> {
   TextEditingController songName = TextEditingController();
   TextEditingController artistName = TextEditingController();
 
+  File image;
+  String imagePath;
+  void selectImage() async{
+    image = await FilePicker.getFile();
+
+    setState(() {
+      image = image;
+      imagePath = basename(image.path);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         children: <Widget>[
           RaisedButton(
-            onPressed: (){},
+            onPressed: ()=> selectImage(),
             child: Text('Select Image'),
           ),
           RaisedButton(
