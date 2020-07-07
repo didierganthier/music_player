@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 
@@ -14,13 +15,24 @@ class _UploadState extends State<Upload> {
 
   File image;
   String imagePath;
+  StorageReference ref;
+  var image_down_url;
+
   void selectImage() async{
     image = await FilePicker.getFile();
 
     setState(() {
       image = image;
       imagePath = basename(image.path);
+      uploadImageFile(image.readAsBytesSync(), imagePath);
     });
+  }
+
+  Future<String> uploadImageFile(List<int>image, String imagePath) async {
+    ref = FirebaseStorage.instance.ref().child(imagePath);
+    StorageUploadTask uploadTask = ref.putData(image);
+
+    image_down_url = await (await uploadTask.onComplete).ref.getDownloadURL();
   }
 
   @override
