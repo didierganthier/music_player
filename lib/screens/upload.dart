@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,7 @@ class _UploadState extends State<Upload> {
   String imagePath, songPath;
   StorageReference ref;
   var image_down_url, song_down_url;
+  final firestoreInstance = Firestore.instance;
 
   void selectImage() async{
     image = await FilePicker.getFile();
@@ -52,6 +54,17 @@ class _UploadState extends State<Upload> {
     song_down_url = await (await uploadTask.onComplete).ref.getDownloadURL();
   }
 
+  finalUpload(){
+    var data = {
+      'song_name': songName.text,
+      'artist_name': artistName.text,
+      'song_url': song_down_url.toString(),
+      'image_url': image_down_url.toString()
+    };
+
+    firestoreInstance.collection("songs").document().setData(data);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -84,7 +97,7 @@ class _UploadState extends State<Upload> {
             ),
           ),
           RaisedButton(
-            onPressed: (){},
+            onPressed: ()=> finalUpload(),
             child: Text('Upload'),
           )
         ],
